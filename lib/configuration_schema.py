@@ -3,7 +3,9 @@ from os import path
 
 CONFIGURATION_SCHEMA = Schema({
 	Optional("options"): {
-		Optional("interval"): And(int, lambda n: n > 0)
+		Optional("interval"): And(int, lambda n: n > 0),
+		Optional("log-level", default = None): int,
+		Optional("log-format", default = None): str
 	},
 	"builds": {
 		Optional(str): {

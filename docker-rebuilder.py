@@ -31,6 +31,14 @@ if __name__ == "__main__":
 		logging.error("My my, how did this happen?", e)
 		sys.exit(1)
 	
+	if "options" in configuration:
+		options = configuration["options"]
+		
+		if options["log-level"]:
+			logging.root.setLevel(options["log-level"])
+		if options["log-format"]:
+			logging.root.handlers[0].setFormatter(logging.Formatter(options["log-format"]))
+	
 	docker_client = docker.from_env()
 	
 	try:
