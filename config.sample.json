@@ -1,0 +1,13 @@
+{
+	"options": {
+		"interval": 600,
+	},
+	"builds": {
+		"sample0": {
+			"dockerfile": "~/mydockerprojects/skynet/",
+			"tag": "itsame/mario:world1",
+			"additional_images": ["luigi/builder-image-that-should-trigger-rebuild"]
+		}
+	}
+}
+
