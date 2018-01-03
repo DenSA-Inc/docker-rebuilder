@@ -4,15 +4,27 @@ import time, logging, sys
 from lib.globals import DEFAULT_INTERVAL, CONFIGURATION_FILENAME
 from lib.configuration import read_configuration, ConfigurationException
 from lib.imagewatcher import ImageWatcher
+from lib.rebuilder import DockerRebuilder
 
 def main(client, configuration):
 	watcher = ImageWatcher(client)
+	rebuilders = [DockerRebuilder(name, client, configuration["builds"][name]) for name in configuration["builds"]]
+	
+	watched_images = set()
+	for reb in rebuilders: watched_images.update(reb.get_dependencies())
+	
 	interval = configuration.get("options", {}).get("interval", DEFAULT_INTERVAL)
 	
 	loop_time = time.time()
-	logging.info(watcher.last_seen_images())
-	
+	logging.debug("Starting with those images in the local registry:", watcher.last_seen_images())
+	logging.info("Loaded %i builds" % len(rebuilders))
 	while True:
+		watcher.pull(watched_images)
+		changed = watcher.find_changed_images()
+		
+		for reb in rebuilders:
+			reb.check_rebuild(changed)
+		
 		time.sleep(max(0, loop_time + interval - time.time()))
 		loop_time += interval
 
@@ -47,5 +59,5 @@ if __name__ == "__main__":
 		pass
 	except Exception as e:
 		logging.error("Looks like we went out with a bang", e)
-		system.exit(1)
+		sys.exit(1)
 
