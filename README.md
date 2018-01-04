@@ -46,6 +46,26 @@ Magic and Voodoo. No, it's easy. Every interval (5 minutes by default) the progr
 
 **Note:** To detect the base-image of your Dockerfile the program looks for the last FROM-directive, builder-images are ignored.
 
+##### Using with docker
+
+docker-rebuilder is available as docker-container. To allow the container to communicate with docker mount the docker-socket-file as volume in the container.
+
+```
+docker run ... -v /var/run/docker.sock:/var/run/docker.sock ... densainc/docker-rebuilder
+```
+
+If you want to let docker-rebuilder connect to a docker-server via tcp then please experiment with the environment variables. As of now I've not tried that.
+
+Making the configuration available inside the container does not look good, but it works:
+
+```
+docker run ... -v /path/to/your/config-file.json:/app/config.json ... densainc/docker-rebuilder
+```
+
+In the last step you have to make the files docker-rebuilder has to work on available in the container. Make sure the paths inside the config.json refer to the paths inside the docker container and not the paths of the host machine. To avoid this problem you should consider mounting your project-files under the exact same path in the container, e.g. `-v /my/project/files:/my/project/files`.
+
+If you followed these advices you should be ready to go, at least it works on my machine :D.
+
 ##### Bugs
 
 Yes, there are bugs. What did you expect?
