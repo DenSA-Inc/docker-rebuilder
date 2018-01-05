@@ -13,6 +13,8 @@ class DockerRebuilder:
 			if not os.path.exists(self.dockerfile):
 				raise ValueError("Found no Dockerfile in supplied directory")
 		
+		self.build_dir = build_config["build_dir"] or os.path.dirname(self.dockerfile)
+		
 		self.base_image = self._get_base_image(self.dockerfile)
 		self.depends_on = [self.base_image] + [
 					self._no_none_tag_parse(img) for img in build_config["additional_images"]
@@ -58,7 +60,7 @@ class DockerRebuilder:
 	def build(self):
 		list( # go through the returned generator, otherwise the image won't be built
 			self.client.api.build(fileobj = open(self.dockerfile, "rb"), tag = self.tag,
-						path = os.path.dirname(self.dockerfile))
+						path = self.build_dir)
 		)
 		logging.info("Rebuilt %s as %s in the docker image registry" % (self.name, self.tag))
 	
